@@ -23,7 +23,7 @@ export default function University() {
     useEffect(() => {
         const fetchUniversityData = async () => {
             try {
-                const backendURL = process.env.BACKEND_URL || "http://localhost:5000";
+                const backendURL = process.env.BACKEND_URL || "http://localhost:8000";
                 const response = await axios.get(`${backendURL}/api/universities/university/${encodeURIComponent(university)}`);
                 setUniversityData(response.data);
             } catch (error) {

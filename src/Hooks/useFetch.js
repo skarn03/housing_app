@@ -14,7 +14,7 @@ export const useFetch = () => {
         setError(null);
 
         try {
-            const response = await fetch("http://localhost:5000/api/" + url, {
+            const response = await fetch("http://localhost:8000/api/" + url, {
                 method,
                 body,
                 headers,

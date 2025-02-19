@@ -14,7 +14,7 @@ export default function Buildings({ universityData }) {
     const [editMode, setEditMode] = useState(null);
     const [editedBuilding, setEditedBuilding] = useState({ name: "", floors: [] });
 
-    const backendURL = process.env.BACKEND_URL || "http://localhost:5000/api/";
+    const backendURL = process.env.BACKEND_URL || "http://localhost:8000/api/";
 
     // Fetch buildings from backend
     useEffect(() => {

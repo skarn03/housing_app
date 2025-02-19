@@ -49,7 +49,7 @@ export default function AddStudentForm({ onSave, onClose, universityData }) {
             }
     
             const studentData = { ...newStudent, picture: imageUrl };
-            const backendURL = process.env.BACKEND_URL || 'http://localhost:5000/api/';
+            const backendURL = process.env.BACKEND_URL || 'http://localhost:8000/api/';
             console.log(auth.token)
             // Call backend API to save student with token authentication
             const response = await axios.post(

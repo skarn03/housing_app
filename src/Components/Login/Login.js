@@ -30,7 +30,7 @@ const SignInPage = () => {
 
     const fetchUniversityData = async (universityName) => {
         try {
-            const backendURL = process.env.BACKEND_URL || 'http://localhost:5000';
+            const backendURL = process.env.BACKEND_URL || 'http://localhost:8000';
             const response = await axios.get(`${backendURL}/api/universities/university/${encodeURIComponent(universityName)}`);
             setUniversityData(response.data);
         } catch (error) {
@@ -49,7 +49,7 @@ const SignInPage = () => {
 
     const handleSignIn = async () => {
         try {
-            const backendURL = process.env.BACKEND_URL || 'http://localhost:5000/api/';
+            const backendURL = process.env.BACKEND_URL || 'http://localhost:8000/api/';
             console.log(`${backendURL}auth/login`);
             const response = await axios.post(`${backendURL}auth/login`, {
                 email: formData.email,

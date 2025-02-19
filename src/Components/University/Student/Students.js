@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom"; // Import navigation hook
 import axios from "axios";
 import { motion } from "framer-motion";
 import {
@@ -9,6 +10,7 @@ import { AuthContext } from "../../../Hooks/AuthContext";
 
 export default function Students({ universityData }) {
     const auth = useContext(AuthContext);
+    const navigate = useNavigate(); // Initialize navigation
     const [expanded, setExpanded] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [showForm, setShowForm] = useState(false);
@@ -18,7 +20,7 @@ export default function Students({ universityData }) {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const backendURL = process.env.BACKEND_URL || "http://localhost:5000/api/";
+    const backendURL = process.env.BACKEND_URL || "http://localhost:8000/api/";
 
     // Fetch students with pagination and multiple filters
     useEffect(() => {
@@ -33,7 +35,7 @@ export default function Students({ universityData }) {
                 const response = await axios.get(`${backendURL}student/getStudents`, {
                     params: {
                         universityId: universityData._id,
-                        search: searchTerm, // Backend will handle multiple filters
+                        search: searchTerm,
                         page,
                         limit: 10
                     },
@@ -91,7 +93,7 @@ export default function Students({ universityData }) {
                     {students.length === 0 ? (
                         <p className="text-center text-gray-500">No students found.</p>
                     ) : (
-                        students.map((student, index) => (
+                        students.map((student) => (
                             <motion.div key={student.studentNumber} className="relative w-[300px] bg-white text-black rounded-2xl shadow-lg border border-gray-300 transition-all transform hover:scale-105 overflow-hidden p-6">
                                 <div className="relative flex justify-center">
                                     <img src={student.picture} alt={student.preferredName} className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover" />
@@ -103,18 +105,12 @@ export default function Students({ universityData }) {
                                 <div className="text-center mt-3">
                                     <h3 className="text-xl font-bold">{student.preferredName} {student.lastName}</h3>
                                     <p className="text-gray-500">{student.entryStatus}</p>
-                                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-600 transition" onClick={() => setExpanded(expanded === index ? null : index)}>
-                                        {expanded === index ? "Hide Details" : "View Profile"}
+                                    <button 
+                                        className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-600 transition"
+                                        onClick={() => navigate(`/home/${encodeURIComponent(universityData.name)}/${student.studentNumber}`)} // Navigate to Student Profile
+                                    >
+                                        View Profile
                                     </button>
-                                    {expanded === index && (
-                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} transition={{ duration: 0.3 }} className="mt-6 text-gray-600 text-sm border-t border-gray-200 pt-4 space-y-2">
-                                            <p className="flex items-center"><FaUser className="mr-2 text-gray-500" /> Age: {student.age} years</p>
-                                            <p className="flex items-center"><FaIdBadge className="mr-2 text-gray-500" /> Student ID: {student.studentNumber}</p>
-                                            <p className="flex items-center"><FaBuilding className="mr-2 text-gray-500" /> Classification: {student.classification}</p>
-                                            <p className="flex items-center"><FaMoneyBill className="mr-2 text-gray-500" /> Room Rate: {student.roomRate}</p>
-                                            <p className="flex items-center"><FaCalendarAlt className="mr-2 text-gray-500" /> Contract: {student.contractDates.start} - {student.contractDates.end}</p>
-                                        </motion.div>
-                                    )}
                                 </div>
                             </motion.div>
                         ))

@@ -5,6 +5,7 @@ import { useAuth } from "./Hooks/useAuth";
 import University from "./Components/University/University";
 import Loader from "./Components/Loading/Loading";
 import Home from "./Components/Home/Home";
+import StudentProfile from "./Components/University/Student/StudentProfile";
 import SignInPage from "./Components/Login/Login";
 function App() {
   const { token, login, logout, userID } = useAuth();
@@ -17,7 +18,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home/:university" element={<University />} />
         <Route path="/login/:university" element={<SignInPage />} />
-
+        <Route path="/home/:university/:studentID" element={< StudentProfile/>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </React.Fragment>
     );

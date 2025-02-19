@@ -10,7 +10,7 @@ export default function AddBuildingForm({ onSave, onClose, universityData }) {
     const [floors, setFloors] = useState([""]); // Array to store floor names
     const [loading, setLoading] = useState(false);
 
-    const backendURL = process.env.BACKEND_URL || "http://localhost:5000/api/";
+    const backendURL = process.env.BACKEND_URL || "http://localhost:8000/api/";
 
     const handleFloorChange = (index, value) => {
         const newFloors = [...floors];
