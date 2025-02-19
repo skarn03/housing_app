@@ -18,7 +18,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home/:university" element={<University />} />
         <Route path="/login/:university" element={<SignInPage />} />
-        <Route path="/home/:university/:studentID" element={< StudentProfile/>} />
+        <Route path="/student/:studentID" element={< StudentProfile/>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </React.Fragment>
     );
@@ -26,6 +26,8 @@ function App() {
     routes = (
       <React.Fragment>
         <Route path="/" element={<Home />} />
+        <Route path="/student/:studentID" element={< StudentProfile/>} />
+
         <Route path="/login/:university" element={<SignInPage />} />
         <Route path="*" element={<Navigate to="/login/:university" replace />} />
 

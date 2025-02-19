@@ -107,7 +107,7 @@ export default function Students({ universityData }) {
                                     <p className="text-gray-500">{student.entryStatus}</p>
                                     <button 
                                         className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-600 transition"
-                                        onClick={() => navigate(`/home/${encodeURIComponent(universityData.name)}/${student.studentNumber}`)} // Navigate to Student Profile
+                                        onClick={() => navigate(`/student/${student.studentNumber}`)} // Navigate to Student Profile
                                     >
                                         View Profile
                                     </button>

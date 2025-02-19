@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import { FaUsers, FaBuilding, FaBox, FaExclamationTriangle, FaHome } from "react-icons/fa";
 import StudentConnection from "./StudentConnection";
 import Students from "./Student/Students";
-import Packages from "./Packages";
+import Packages from "./Package/Packages";
 import IncidentReports from "./IncidentReports";
 import Buildings from "./Building/Building"; // Import new Buildings component
 
