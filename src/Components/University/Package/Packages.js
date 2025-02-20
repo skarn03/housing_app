@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaPlus } from "react-icons/fa";
 import AddPackageForm from "./AddPackageForm";
 
-export default function Packages() {
+export default function Packages({universityData}) {
     const [showForm, setShowForm] = useState(false);
 
     return (
@@ -25,7 +25,7 @@ export default function Packages() {
             </div>
 
             <p>Track and manage incoming packages for students and staff.</p>
-            {showForm && <AddPackageForm onClose={() => setShowForm(false)} />}
+            {showForm && <AddPackageForm buildings={universityData.buildings} onClose={() => setShowForm(false)} />}
         </motion.div>
     );
 }
