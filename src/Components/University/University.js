@@ -3,13 +3,13 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { FaUsers, FaBuilding, FaBox, FaExclamationTriangle, FaHome } from "react-icons/fa";
+import { FaUsers, FaBuilding, FaBox, FaExclamationTriangle, FaHome, FaClipboardList } from "react-icons/fa";
 import StudentConnection from "./StudentConnection";
 import Students from "./Student/Students";
 import Packages from "./Package/Packages";
-import IncidentReports from "./IncidentReports";
-import Buildings from "./Building/Building"; // Import new Buildings component
-
+import IncidentReports from "./IncidentReport/IncidentReports";
+import Buildings from "./Building/Building"; 
+import PackageLog from "./PackageLog/PackageLog";
 export default function University() {
     const { university } = useParams();
     const location = useLocation();
@@ -43,8 +43,9 @@ export default function University() {
         { id: "studentConnection", label: "Student Connection", icon: <FaBuilding className="mr-2" /> },
         { id: "students", label: "Students", icon: <FaUsers className="mr-2" /> },
         { id: "packages", label: "Packages", icon: <FaBox className="mr-2" /> },
+        { id: "packageLog", label: "Package Log", icon: <FaClipboardList className="mr-2" /> }, // New Package Log Tab
         { id: "incidentReports", label: "Incident Reports", icon: <FaExclamationTriangle className="mr-2" /> },
-        { id: "buildings", label: "Buildings", icon: <FaHome className="mr-2" /> }, // New Buildings Tab
+        { id: "buildings", label: "Buildings", icon: <FaHome className="mr-2" /> },
     ];
 
     return (
@@ -69,8 +70,9 @@ export default function University() {
                             <motion.button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${activeTab === tab.id ? "bg-black text-white shadow-lg" : "text-gray-700 hover:bg-gray-200"
-                                    }`}
+                                className={`flex items-center w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${
+                                    activeTab === tab.id ? "bg-black text-white shadow-lg" : "text-gray-700 hover:bg-gray-200"
+                                }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -102,8 +104,9 @@ export default function University() {
                                             setActiveTab(tab.id);
                                             setMenuOpen(false);
                                         }}
-                                        className={`flex items-center w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${activeTab === tab.id ? "bg-black text-white shadow-lg" : "text-gray-700 hover:bg-gray-200"
-                                            }`}
+                                        className={`flex items-center w-full text-left px-4 py-3 rounded-lg font-medium transition-all ${
+                                            activeTab === tab.id ? "bg-black text-white shadow-lg" : "text-gray-700 hover:bg-gray-200"
+                                        }`}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
@@ -128,8 +131,9 @@ export default function University() {
                         {activeTab === "studentConnection" && <StudentConnection universityData={universityData} />}
                         {activeTab === "students" && <Students universityData={universityData} />}
                         {activeTab === "packages" && <Packages universityData={universityData} />}
+                        {activeTab === "packageLog" && <PackageLog universityData={universityData} />} {/* New Package Log Section */}
                         {activeTab === "incidentReports" && <IncidentReports universityData={universityData} />}
-                        {activeTab === "buildings" && <Buildings universityData={universityData} />} {/* New Buildings Section */}
+                        {activeTab === "buildings" && <Buildings universityData={universityData} />}
                     </motion.div>
                 </main>
             </div>

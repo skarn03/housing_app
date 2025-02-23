@@ -36,8 +36,8 @@ export default function Navbar() {
                 return;
             }
 
-            const backendURL = process.env.BACKEND_URL || 'http://localhost:8000';
-            const response = await axios.get(`${backendURL}/api/universities/search/${query}`);
+            const backendURL = process.env.BACKEND_URL || 'http://localhost:8000/api/';
+            const response = await axios.get(`${backendURL}universities/search/${query}`);
 
             if (response.data.length > 0) {
                 setSearchResults(response.data);

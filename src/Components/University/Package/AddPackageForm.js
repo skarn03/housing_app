@@ -57,15 +57,15 @@ export default function AddPackageForm({ onClose, buildings }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(formData);
-        // try {
-        //     const backendURL = process.env.BACKEND_URL || "http://localhost:8000/api/";
-        //     await axios.post(`${backendURL}package/add`, formData, {
-        //         headers: { "Authorization": `Bearer ${auth.token}`, "Content-Type": "application/json" }
-        //     });
-        //     onClose();
-        // } catch (error) {
-        //     console.error("Error saving package:", error);
-        // }
+        try {
+            const backendURL = process.env.BACKEND_URL || "http://localhost:8000/api/";
+            await axios.post(`${backendURL}package/add`, formData, {
+                headers: { "Authorization": `Bearer ${auth.token}`, "Content-Type": "application/json" }
+            });
+            onClose();
+        } catch (error) {
+            console.error("Error saving package:", error);
+        }
     };
 
     return (
