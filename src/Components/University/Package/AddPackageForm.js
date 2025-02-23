@@ -45,46 +45,60 @@ export default function AddPackageForm({ onClose, buildings }) {
     }, [searchTerm]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleSelectRecipient = (student) => {
-        setFormData({ ...formData, recipient: student._id });
+        setFormData((prev) => ({
+            ...prev,
+            recipient: student._id,
+        }));
         setSearchTerm(`${student.firstName} ${student.lastName} (${student.studentNumber})`);
         setSearchResults([]);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        console.log("📤 Submitting Form Data:", formData); // Debugging
+    
         try {
             const backendURL = process.env.BACKEND_URL || "http://localhost:8000/api/";
-            await axios.post(`${backendURL}package/add`, formData, {
-                headers: { "Authorization": `Bearer ${auth.token}`, "Content-Type": "application/json" }
+    
+            const response = await axios.post(`${backendURL}package/add`, formData, {
+                headers: {
+                    "Authorization": `Bearer ${auth.token}`,
+                    "Content-Type": "application/json",
+                },
             });
+    
+            console.log("✅ Package Saved:", response.data); // Debugging
             onClose();
         } catch (error) {
-            console.error("Error saving package:", error);
+            console.error("❌ Error saving package:", error.response?.data || error.message);
         }
     };
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
             className="p-6 bg-gray-100 rounded-lg shadow-md mt-4"
         >
             <h3 className="text-lg font-semibold mb-4">Add New Package</h3>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
+
                 {/* Recipient Search */}
-                <input 
-                    type="text" 
-                    name="recipient" 
-                    placeholder="Search Recipient" 
-                    className="border p-2 rounded" 
-                    value={searchTerm} 
+                <input
+                    type="text"
+                    name="recipient"
+                    placeholder="Search Recipient"
+                    className="border p-2 rounded"
+                    value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 {loading && <p>Searching...</p>}

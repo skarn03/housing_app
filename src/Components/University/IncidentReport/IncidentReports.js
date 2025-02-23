@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaPlus } from "react-icons/fa";
 import AddIncidentReportForm from "./AddIncidentReportForm ";
-export default function IncidentReports() {
+export default function IncidentReports({universityData}) {
     const [showForm, setShowForm] = useState(false);
 
     return (
@@ -25,7 +25,7 @@ export default function IncidentReports() {
             <p className="text-gray-600">Review and handle incident reports related to the university.</p>
 
             {/* Add Incident Report Modal */}
-            {showForm && <AddIncidentReportForm onClose={() => setShowForm(false)} />}
+            {showForm && <AddIncidentReportForm universityData={universityData} onClose={() => setShowForm(false)} />}
         </motion.div>
     );
 }
