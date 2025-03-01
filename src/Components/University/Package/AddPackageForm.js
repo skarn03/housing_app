@@ -87,7 +87,7 @@ export default function AddPackageForm({ onClose, buildings }) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="p-6 bg-gray-100 rounded-lg shadow-md mt-4"
+            className="p-6 bg-gray-100 rounded-lg shadow-md mt-4 mb-4"
         >
             <h3 className="text-lg font-semibold mb-4">Add New Package</h3>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">

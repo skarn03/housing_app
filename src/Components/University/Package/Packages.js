@@ -7,6 +7,8 @@ import AddPackageForm from "./AddPackageForm";
 
 export default function Packages({ universityData }) {
     const auth = useContext(AuthContext);
+    const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api/";
+
     const [showForm, setShowForm] = useState(false);
     const [packages, setPackages] = useState([]);
     const [groupedPackages, setGroupedPackages] = useState({});
@@ -19,14 +21,19 @@ export default function Packages({ universityData }) {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api/";
+    // Student Search & Selection
+    const [searchStudent, setSearchStudent] = useState("");
+    const [studentResults, setStudentResults] = useState([]);
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [debouncedSearchStudent, setDebouncedSearchStudent] = useState("");
+    const studentDropdownRef = useRef(null);
+
     const [showBuildingDropdown, setShowBuildingDropdown] = useState(false);
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const buildingDropdownRef = useRef(null);
     const statusDropdownRef = useRef(null);
     const [selectedPackages, setSelectedPackages] = useState([]);
-    const [showConfirmModal, setShowConfirmModal] = useState(false); // State for confirmation modal
-
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     useEffect(() => {
         function handleClickOutside(event) {
             if (buildingDropdownRef.current && !buildingDropdownRef.current.contains(event.target)) {
@@ -45,7 +52,47 @@ export default function Packages({ universityData }) {
 
     useEffect(() => {
         fetchPackages();
-    }, [searchTerm, selectedBuildings, selectedStatus, page]);
+    }, [searchTerm, selectedBuildings, selectedStatus, selectedStudent, page]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchStudent(searchStudent);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, [searchStudent]);
+
+    useEffect(() => {
+        if (!universityData || !auth.token || debouncedSearchStudent.trim() === "") return;
+        axios
+            .get(`${backendURL}student/getStudents`, {
+                params: {
+                    universityId: universityData._id,
+                    search: debouncedSearchStudent,
+                    page: 1,
+                    limit: 10,
+                },
+                headers: {
+                    Authorization: `Bearer ${auth.token}`,
+                    "Content-Type": "application/json",
+                },
+            })
+            .then((response) => {
+                setStudentResults(response.data.students);
+            })
+            .catch((err) => {
+                console.error("❌ Error fetching students:", err);
+            });
+    }, [debouncedSearchStudent, auth.token, backendURL, universityData]);
+
+    const handleStudentSelect = (student) => {
+        setSelectedStudent({
+            student: student._id,
+            studentName: `${student.firstName} ${student.lastName}`,
+            studentNumber: student.studentNumber,
+        });
+        setSearchStudent("");
+        setStudentResults([]);
+    };
 
     const fetchPackages = async () => {
         setLoading(true);
@@ -54,7 +101,6 @@ export default function Packages({ universityData }) {
         try {
             console.log("📦 Fetching packages...");
 
-            // Construct the search query including status
             let searchQuery = searchTerm;
             if (selectedStatus) {
                 searchQuery = searchQuery ? `${searchQuery},${selectedStatus}` : selectedStatus;
@@ -62,17 +108,17 @@ export default function Packages({ universityData }) {
 
             const response = await axios.get(`${backendURL}package/all`, {
                 params: {
-                    search: searchQuery, // Pass both search term and status
+                    search: searchQuery,
                     buildings: selectedBuildings.join(","),
+                    studentId: selectedStudent ? selectedStudent.student : "", // Send student ID to backend
                     page,
                     limit: 40
                 },
                 headers: { "Authorization": `Bearer ${auth.token}` }
             });
 
-            const grouped = groupPackagesByRecipient(response.data.packages);
             setPackages(response.data.packages);
-            setGroupedPackages(grouped);
+            setGroupedPackages(groupPackagesByRecipient(response.data.packages));
             setTotalPages(response.data.totalPages);
             console.log("✅ Packages fetched:", response.data.packages);
         } catch (err) {
@@ -82,7 +128,6 @@ export default function Packages({ universityData }) {
             setLoading(false);
         }
     };
-
 
     const groupPackagesByRecipient = (packages) => {
         return packages.reduce((acc, pkg) => {
@@ -148,7 +193,7 @@ export default function Packages({ universityData }) {
             {/* Top Bar */}
             <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
                 {/* Search Input */}
-                <div className="relative w-full md:w-1/2">
+                {/* <div className="relative w-full md:w-1/2">
                     <input
                         type="text"
                         placeholder="Search (comma-separated)..."
@@ -157,8 +202,64 @@ export default function Packages({ universityData }) {
                         className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <FaSearch className="absolute right-3 top-3 text-gray-500" />
-                </div>
+                </div> */}
+                {/* Student Search Input */}
+                <div className="relative w-full md:w-1/2 mb-4">
+                    {selectedStudent ? (
+                        <div className="flex items-center gap-2 border p-2 rounded">
+                            <span className="font-semibold">{selectedStudent.studentName}</span>
+                            <span className="text-sm text-gray-500">({selectedStudent.studentNumber})</span>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedStudent(null)}
+                                className="text-blue-500 hover:underline ml-auto"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Search by Student..."
+                                value={searchStudent}
+                                onChange={(e) => setSearchStudent(e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg"
+                            />
+                            {studentResults.length > 0 && (
+                                <ul className="absolute z-10 w-full bg-white border rounded mt-1 max-h-60 overflow-y-auto shadow-lg">
+                                    {studentResults.map((student) => (
+                                        <li
+                                            key={student._id}
+                                            onClick={() => handleStudentSelect(student)}
+                                            className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                                        >
+                                            {/* Student Image */}
+                                            <img
+                                                src={student.picture || "https://via.placeholder.com/50"}
+                                                alt="Student"
+                                                className="w-12 h-12 rounded-full border shadow-sm"
+                                            />
 
+                                            {/* Student Details */}
+                                            <div className="flex flex-col">
+                                                <span className="font-semibold text-gray-800">
+                                                    {student.firstName} {student.lastName}
+                                                </span>
+                                                <span className="text-sm text-gray-500">
+                                                    🎓 {student.studentNumber}
+                                                </span>
+                                                <span className="text-sm text-gray-600">
+                                                    🏢 {student.building} | Room {student.room || "N/A"}
+                                                </span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </>
+                    )}
+                </div>
                 <div className=" flex space-x-2 flex-row  ">
                     {/* Multi-Select Building Filter */}
                     <div className="relative" ref={buildingDropdownRef}>
@@ -218,6 +319,8 @@ export default function Packages({ universityData }) {
             </div>
 
             {showForm && <AddPackageForm buildings={universityData.buildings} onClose={() => setShowForm(false)} />}
+
+
 
             {loading ? (
                 <p className="text-center text-gray-500">Loading packages...</p>

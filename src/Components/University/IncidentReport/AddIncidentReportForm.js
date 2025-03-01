@@ -448,15 +448,20 @@ export default function AddIncidentReportForm({ onClose, universityData }) {
                     {/* Incident Details */}
                     <div>
                         <h3 className="font-semibold">📌 Incident Details</h3>
-                        <input
-                            type="text"
+                        <select
                             name="nature"
-                            placeholder="Nature of Incident"
                             value={formData.nature}
                             onChange={handleChange}
                             required
                             className="w-full p-2 border rounded mt-2"
-                        />
+                        >
+                            <option value="" disabled>
+                                Select Nature of Report
+                            </option>
+                            <option value="Housing">Housing</option>
+                            <option value="Residence Life Conduct">Residence Life Conduct</option>
+                            <option value="Student Conduct">Student Conduct</option>
+                        </select>
                         <input
                             type="date"
                             name="date"
@@ -516,7 +521,7 @@ export default function AddIncidentReportForm({ onClose, universityData }) {
                             required
                             className="w-full p-2 border rounded mt-2"
                         >
-                            <option value="">Select Response</option>
+                            <option value="">Did Police Respond</option>
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                             <option value="I don't know">I don't know</option>

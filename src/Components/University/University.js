@@ -3,13 +3,15 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { FaUsers, FaBuilding, FaBox, FaExclamationTriangle, FaHome, FaClipboardList } from "react-icons/fa";
+import { FaUsers, FaBuilding, FaBox, FaExclamationTriangle, FaHome, FaClipboardList, FaUserTie } from "react-icons/fa"; 
 import StudentConnection from "./StudentConnection";
 import Students from "./Student/Students";
 import Packages from "./Package/Packages";
 import IncidentReports from "./IncidentReport/IncidentReports";
 import Buildings from "./Building/Building"; 
 import PackageLog from "./PackageLog/PackageLog";
+import Staff from "./Staff/Staff"; // New Staff Component
+
 export default function University() {
     const { university } = useParams();
     const location = useLocation();
@@ -42,8 +44,9 @@ export default function University() {
     const tabs = [
         { id: "studentConnection", label: "Student Connection", icon: <FaBuilding className="mr-2" /> },
         { id: "students", label: "Students", icon: <FaUsers className="mr-2" /> },
+        { id: "staff", label: "Staff", icon: <FaUserTie className="mr-2" /> }, // New Staff Tab
         { id: "packages", label: "Packages", icon: <FaBox className="mr-2" /> },
-        { id: "packageLog", label: "Package Log", icon: <FaClipboardList className="mr-2" /> }, // New Package Log Tab
+        { id: "packageLog", label: "Package Log", icon: <FaClipboardList className="mr-2" /> },
         { id: "incidentReports", label: "Incident Reports", icon: <FaExclamationTriangle className="mr-2" /> },
         { id: "buildings", label: "Buildings", icon: <FaHome className="mr-2" /> },
     ];
@@ -130,8 +133,9 @@ export default function University() {
                     >
                         {activeTab === "studentConnection" && <StudentConnection universityData={universityData} />}
                         {activeTab === "students" && <Students universityData={universityData} />}
+                        {activeTab === "staff" && <Staff universityData={universityData} />} {/* New Staff Section */}
                         {activeTab === "packages" && <Packages universityData={universityData} />}
-                        {activeTab === "packageLog" && <PackageLog universityData={universityData} />} {/* New Package Log Section */}
+                        {activeTab === "packageLog" && <PackageLog universityData={universityData} />}
                         {activeTab === "incidentReports" && <IncidentReports universityData={universityData} />}
                         {activeTab === "buildings" && <Buildings universityData={universityData} />}
                     </motion.div>

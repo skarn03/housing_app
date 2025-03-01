@@ -192,7 +192,7 @@ export default function PackageLog({ universityData }) {
 
             {/* Full Package Log Details Modal */}
             {selectedLog && <PackageLogDetails log={selectedLog} onClose={() => setSelectedLog(null)} />}
-            <div className="flex justify-center items-center gap-4 mt-6">
+            <div className="flex justify-start ml-24 items-center gap-4 mt-6">
                 <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-4 py-2 bg-gray-300 rounded-lg flex items-center gap-2 disabled:opacity-50">
                     <FaArrowLeft /> Prev
                 </button>
