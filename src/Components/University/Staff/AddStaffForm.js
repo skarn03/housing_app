@@ -1,14 +1,14 @@
-// AddStaffForm.jsx
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Hooks/AuthContext";
 import { motion } from "framer-motion";
 import { FaUserPlus } from "react-icons/fa";
 
-export default function AddStaffForm() {
+// 1) Import toast
+import { toast } from "react-toastify";
+
+export default function AddStaffForm({ universityData }) {
     const auth = useContext(AuthContext);
-    const navigate = useNavigate();
     const backendURL =
         process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api/";
 
@@ -17,16 +17,14 @@ export default function AddStaffForm() {
         middleName: "",
         lastName: "",
         email: "",
-        password: "",
         role: "RA",
         building: "",
-        university: "",
-        revoke: false,
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Handle input changes
+    // Handle all input changes
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prevData) => ({
@@ -35,11 +33,46 @@ export default function AddStaffForm() {
         }));
     };
 
-    // Handle form submit
+    // Perform client-side validations before submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+
+        // 1. Check required fields
+        if (!formData.firstName.trim()) {
+            setError("First Name is required.");
+            setLoading(false);
+            return;
+        }
+        if (!formData.lastName.trim()) {
+            setError("Last Name is required.");
+            setLoading(false);
+            return;
+        }
+        if (!formData.email.trim()) {
+            setError("Email is required.");
+            setLoading(false);
+            return;
+        }
+        if (!formData.building) {
+            setError("You must select a building.");
+            setLoading(false);
+            return;
+        }
+
+        // 2. Check email domain if universityData.domain is provided
+        const domain = universityData?.domain?.toLowerCase(); // e.g. "emich.edu"
+        if (domain) {
+            const emailLower = formData.email.toLowerCase();
+            if (!emailLower.endsWith(`@${domain}`)) {
+                setError(`Email must end with @${domain}`);
+                setLoading(false);
+                return;
+            }
+        }
+
+        // If all validations pass, submit to backend
         try {
             await axios.post(`${backendURL}staff/add`, formData, {
                 headers: {
@@ -47,8 +80,24 @@ export default function AddStaffForm() {
                     "Content-Type": "application/json",
                 },
             });
-            navigate("/staff");
+
+            // 3) If successful, show success toast
+            toast.success("Staff added successfully!");
+
+            // Clear form after success (optional)
+            setFormData({
+                firstName: "",
+                middleName: "",
+                lastName: "",
+                email: "",
+                role: "RA",
+                building: "",
+            });
         } catch (err) {
+            // 4) Show error toast
+            console.log(err);
+            toast.error(err?.response?.data?.message);
+
             setError("Failed to add staff member.");
         } finally {
             setLoading(false);
@@ -57,7 +106,6 @@ export default function AddStaffForm() {
 
     return (
         <motion.div
-            // Additional motion if you like
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
@@ -72,6 +120,7 @@ export default function AddStaffForm() {
                 </h2>
             </div>
 
+            {/* Inline error message (optional) */}
             {error && (
                 <motion.div
                     className="text-red-500 bg-red-50 border border-red-200 p-3 rounded mb-4"
@@ -82,6 +131,7 @@ export default function AddStaffForm() {
                 </motion.div>
             )}
 
+            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
                 {/* First & Middle Name */}
                 <div className="flex flex-col md:flex-row gap-5">
@@ -95,8 +145,8 @@ export default function AddStaffForm() {
                             placeholder="First Name"
                             value={formData.firstName}
                             onChange={handleChange}
-                            required
                             className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            required
                         />
                     </div>
 
@@ -126,44 +176,32 @@ export default function AddStaffForm() {
                         placeholder="Last Name"
                         value={formData.lastName}
                         onChange={handleChange}
-                        required
                         className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        required
                     />
                 </div>
 
                 {/* Email */}
                 <div>
-                    <label className="block text-gray-700 font-medium mb-1">Email</label>
+                    <label className="block text-gray-700 font-medium mb-1">
+                        Email
+                    </label>
                     <input
                         type="email"
                         name="email"
                         placeholder="Email"
                         value={formData.email}
                         onChange={handleChange}
-                        required
                         className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                </div>
-
-                {/* Password */}
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">
-                        Password
-                    </label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={handleChange}
                         required
-                        className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
 
                 {/* Role */}
                 <div>
-                    <label className="block text-gray-700 font-medium mb-1">Role</label>
+                    <label className="block text-gray-700 font-medium mb-1">
+                        Role
+                    </label>
                     <select
                         name="role"
                         value={formData.role}
@@ -173,54 +211,33 @@ export default function AddStaffForm() {
                         <option value="RA">RA</option>
                         <option value="GHD">GHD</option>
                         <option value="CD">CD</option>
+                        <option value="Admin">Admin</option>
                         <option value="SuperAdmin">SuperAdmin</option>
+                        
                     </select>
                 </div>
 
-                {/* Building & University */}
-                <div className="flex flex-col md:flex-row gap-5">
-                    <div className="flex-1">
-                        <label className="block text-gray-700 font-medium mb-1">
-                            Building ID (Optional)
-                        </label>
-                        <input
-                            type="text"
-                            name="building"
-                            placeholder="Building ID"
-                            value={formData.building}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                    </div>
-
-                    <div className="flex-1">
-                        <label className="block text-gray-700 font-medium mb-1">
-                            University ID
-                        </label>
-                        <input
-                            type="text"
-                            name="university"
-                            placeholder="University ID"
-                            value={formData.university}
-                            onChange={handleChange}
-                            required
-                            className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                    </div>
-                </div>
-
-                {/* Revoke */}
-                <div className="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        name="revoke"
-                        checked={formData.revoke}
-                        onChange={handleChange}
-                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label className="text-gray-700 font-medium">
-                        Revoke Access
+                {/* Building (Single) */}
+                <div>
+                    <label className="block text-gray-700 font-medium mb-1">
+                        Building
                     </label>
+                    <select
+                        name="building"
+                        value={formData.building}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        required
+                    >
+                        <option value="" disabled>
+                            -- Select a Building --
+                        </option>
+                        {universityData?.buildings?.map((bldg) => (
+                            <option key={bldg._id} value={bldg._id}>
+                                {bldg.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Submit Button */}

@@ -17,14 +17,13 @@ import {
     FaSortDown,
     FaPlus,
     FaTimes,
+    FaBuilding,
 } from "react-icons/fa";
 import { AuthContext } from "../../../Hooks/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Import your form:
 import AddStaffForm from "./AddStaffForm";
 
-export default function Staff({universityData}) {
+export default function Staff({ universityData }) {
     const auth = useContext(AuthContext);
     const [staffList, setStaffList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -56,19 +55,24 @@ export default function Staff({universityData}) {
         fetchStaff();
     }, [auth.token, backendURL]);
 
-    // Columns for React Table
+    // ----- Define Table Columns -----
     const columns = [
         {
-            accessorKey: "name",
-            header: "Name",
-            cell: ({ row }) => (
-                <div className="flex items-center gap-2">
-                    <FaUserTie className="text-blue-500 text-lg" />
-                    <span>
-                        {row.original.firstName} {row.original.lastName}
-                    </span>
-                </div>
-            ),
+            // Combining firstName, middleName, lastName
+            accessorKey: "fullName",
+            header: "Full Name",
+            cell: ({ row }) => {
+                const { firstName, middleName, lastName } = row.original;
+                const fullName = [firstName, middleName, lastName]
+                    .filter(Boolean)
+                    .join(" ");
+                return (
+                    <div className="flex items-center gap-2">
+                        <FaUserTie className="text-blue-500 text-lg" />
+                        <span>{fullName}</span>
+                    </div>
+                );
+            },
         },
         {
             accessorKey: "role",
@@ -90,9 +94,24 @@ export default function Staff({universityData}) {
                 </div>
             ),
         },
+        {
+            // If staff has a populated building field (e.g., building: { _id, name })
+            accessorKey: "building",
+            header: "Building",
+            cell: ({ row }) => {
+                const building = row.original.building;
+                // building might be null, or an object with "name"
+                return (
+                    <div className="flex items-center gap-2">
+                        <FaBuilding className="text-green-500 text-lg" />
+                        <span>{building?.name || "—"}</span>
+                    </div>
+                );
+            },
+        },
     ];
 
-    // Set up TanStack table
+    // Initialize the table using TanStack React Table
     const table = useReactTable({
         data: staffList,
         columns,
@@ -106,6 +125,7 @@ export default function Staff({universityData}) {
 
     return (
         <div className="p-6 bg-white rounded-lg shadow-lg">
+            {/* Top heading and "Add Staff" button */}
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">👨‍💼 University Staff</h2>
                 <button
@@ -116,7 +136,7 @@ export default function Staff({universityData}) {
                 </button>
             </div>
 
-            {/* AnimatePresence helps with unmount/mount animations */}
+            {/* AnimatePresence for AddStaffForm modal */}
             <AnimatePresence>
                 {showAddStaffForm && (
                     <motion.div
@@ -131,7 +151,7 @@ export default function Staff({universityData}) {
                             onClick={() => setShowAddStaffForm(false)}
                         ></div>
 
-                        {/* Modal container - we can animate scale or slide */}
+                        {/* Modal container */}
                         <motion.div
                             className="relative bg-white w-full max-w-lg mx-auto rounded-2xl shadow-xl overflow-hidden"
                             initial={{ y: -50, opacity: 0, scale: 0.95 }}
@@ -147,12 +167,14 @@ export default function Staff({universityData}) {
                                 <FaTimes size={20} />
                             </button>
 
-                            <AddStaffForm />
+                            {/* Render your existing form */}
+                            <AddStaffForm universityData={universityData} />
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
+            {/* Loading / error / table display */}
             {loading ? (
                 <p className="text-gray-500 text-center">Loading staff members...</p>
             ) : error ? (
